@@ -25,8 +25,9 @@ class Package:
         self.loading_time = 0.0 # making this a float for now, may change to datetime
         self.delivery_time = 0.0 # making this a float for now, may change to datetime
 
+
     def __str__(self):
-        return "\n".join([
+        return "{" + "\n".join([
             f"{self.package_id=}",
             f"{self.address=}",
             f"{self.city=}",
@@ -37,10 +38,11 @@ class Package:
             f"{self.special_notes=}",
             f"{self.loading_time=}",
             f"{self.delivery_time=}",
-        ])
+        ]) + "}"
     
+
     def __repr__(self):
-        return "\n".join([
+        return "{" + "\n".join([
             f"{self.package_id=}",
             f"{self.address=}",
             f"{self.city=}",
@@ -51,4 +53,4 @@ class Package:
             f"{self.special_notes=}",
             f"{self.loading_time=}",
             f"{self.delivery_time=}",
-        ])
+        ]) + "}"
