@@ -1,6 +1,8 @@
+from delivery_status_enum import DeliveryStatus
+
 class Package:
     """"A package object is intended to contain the data 
-        that is read in from the package CSV file and has the following fields:
+        that is read in from the package CSV file that has the following fields:
 
         Package ID (integer), 
         Address (string),
@@ -10,6 +12,8 @@ class Package:
         Delivery Deadline (string),
         Weight KILO (float), 
         Special Notes (string)
+
+        A package also contains the fields delivery_status and delivery_time.
     """
     
     def __init__(self, package_id, address, city, state, zip, delivery_deadline, weight_kilo, special_notes):
@@ -22,12 +26,12 @@ class Package:
         self.delivery_deadline = delivery_deadline
         self.weight_kilo = weight_kilo
         self.special_notes = special_notes    
-        self.loading_time = 0.0 # making this a float for now, may change to datetime
-        self.delivery_time = 0.0 # making this a float for now, may change to datetime
+        self.delivery_status = DeliveryStatus.AT_HUB
+        self.delivery_time = None
 
 
     def __str__(self):
-        return "{" + "\n".join([
+        return "\n".join([
             f"{self.package_id=}",
             f"{self.address=}",
             f"{self.city=}",
@@ -36,13 +40,13 @@ class Package:
             f"{self.delivery_deadline=}",
             f"{self.weight_kilo=}",
             f"{self.special_notes=}",
-            f"{self.loading_time=}",
-            f"{self.delivery_time=}",
-        ]) + "}"
+            f"{self.delivery_status.value=}",
+            f"{self.delivery_time=}"
+        ])+"\n"
     
 
     def __repr__(self):
-        return "{" + "\n".join([
+        return "\n".join([
             f"{self.package_id=}",
             f"{self.address=}",
             f"{self.city=}",
@@ -51,6 +55,6 @@ class Package:
             f"{self.delivery_deadline=}",
             f"{self.weight_kilo=}",
             f"{self.special_notes=}",
-            f"{self.loading_time=}",
-            f"{self.delivery_time=}",
-        ]) + "}"
+            f"{self.delivery_status.value=}",
+            f"{self.delivery_time=}"
+        ])+"\n"
