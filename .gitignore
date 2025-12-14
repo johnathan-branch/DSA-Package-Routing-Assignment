@@ -1,3 +1,4 @@
 resources/*.docx
 resources/*.xlsx
+src/temp.py
 __pycache__
