@@ -1,0 +1,1 @@
+To execute navigate to the src directory, then run: python main.py
