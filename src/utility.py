@@ -1,5 +1,9 @@
 # This file is for various helper and utility functions needed.
 
+from copy import deepcopy
+from datetime import datetime
+
+from delivery_status_enum import DeliveryStatus
 from package import Package
 
 def read_and_parse_csv_file(file_path):
@@ -67,7 +71,7 @@ def read_and_parse_distance_file(file_path):
     return distance_data, address_location_map
 
 
-def partition_packages(package_hash_table, list_max_size=14, num_of_packages=40):
+def partition_packages(package_hash_table, list_max_size=16, num_of_packages=40):
     """This function takes the package_hash_table in as an argument and partitions the packages into 3 lists.
        Partitioning is done with following all of the constraints listed in the special notes of the Package objects. 
 
@@ -84,6 +88,7 @@ def partition_packages(package_hash_table, list_max_size=14, num_of_packages=40)
         packages_list3: List of packages on route 3.
     """
     packages_list1, packages_list2, packages_list3 = [], [], []
+    early_delivery_counter = 0
 
     for i in range(1, num_of_packages+1):
         package = package_hash_table.lookup(i)
@@ -92,15 +97,31 @@ def partition_packages(package_hash_table, list_max_size=14, num_of_packages=40)
             continue
 
         else:
-            delivery_must_be_in_list2 = package.package_id in (13, 14, 15, 16, 19, 20) or "Can only be on truck 2".lower() in package.special_notes.lower()
-            if delivery_must_be_in_list2:
-               # per the delivery instructions, (13, 14, 15, 16, 19, 20) all need to be delivered together
+            early_delivery = "EOD".lower() not in package.delivery_deadline.lower()
+            if early_delivery: early_delivery_counter += 1
+            delivery_must_be_in_list1 = (early_delivery and early_delivery_counter%2 == 0) or package.package_id in (13, 14, 15, 16, 19, 20)
+            delivery_must_be_in_list2 = (early_delivery and early_delivery_counter%2 == 1) or "Can only be on truck 2".lower() in package.special_notes.lower()
 
+            if delivery_must_be_in_list1:
+                # per the delivery instructions, (13, 14, 15, 16, 19, 20) all need to be delivered together
+                if len(packages_list1) < list_max_size:
+                    packages_list1.append(package)
+                else:
+                    for i in range(len(packages_list1)):
+                        delivery_must_be_in_list1 =  "EOD".lower() not in packages_list1[i].delivery_deadline.lower() or packages_list1[i].package_id in (13, 14, 15, 16, 19, 20)
+                        if not delivery_must_be_in_list1:
+                            packages_list3.append(packages_list1[i])
+                            packages_list1[i] = package
+                            break
+                continue
+            
+            elif delivery_must_be_in_list2:
+               
                 if len(packages_list2) < list_max_size:
                     packages_list2.append(package)
                 else:
                     for i in range(len(packages_list2)):
-                        delivery_must_be_in_list2 = packages_list2[i].package_id in (13, 14, 15, 16, 19, 20) or "Can only be on truck 2".lower() in packages_list2[i].special_notes.lower()
+                        delivery_must_be_in_list2 = "EOD".lower() not in packages_list2[i].delivery_deadline.lower() or "Can only be on truck 2".lower() in packages_list2[i].special_notes.lower()
                         if not delivery_must_be_in_list2:
                             packages_list3.append(packages_list2[i])
                             packages_list2[i] = package
@@ -110,6 +131,8 @@ def partition_packages(package_hash_table, list_max_size=14, num_of_packages=40)
             elif "Wrong address listed".lower() in package.special_notes.lower():
                 package.address = "410 S State St"
                 package.special_notes += "---fixed address---must be delivered after 10:20"
+                packages_list3.append(package) # put this one route3 since it has to be delivered later on (after 10:20)
+                continue
 
             if len(packages_list1) < list_max_size:
                 packages_list1.append(package)
@@ -118,9 +141,50 @@ def partition_packages(package_hash_table, list_max_size=14, num_of_packages=40)
             else:
                packages_list3.append(package)  
 
-    # after for-loop, lazy-sort each list by filtering EOD deliveries to the end (ignore other times for now)      
-    packages_list1.sort(key=lambda package: package.delivery_deadline == "EOD")
-    packages_list2.sort(key=lambda package: package.delivery_deadline == "EOD")
-    packages_list3.sort(key=lambda package: package.delivery_deadline == "EOD")
+    # after for-loop, lazy-sort each list by filtering delivery_deadline and delays
+    packages_list1.sort(key=lambda package: package.delivery_deadline.upper() == "10:30 AM")  
+    packages_list1.sort(key=lambda package: package.special_notes.upper() == "Delayed on flight---will not arrive to depot until 9:05 am".upper())   
+    packages_list1.sort(key=lambda package: package.delivery_deadline.upper() == "EOD")
+    packages_list2.sort(key=lambda package: package.delivery_deadline.upper() == "EOD")
+    packages_list3.sort(key=lambda package: package.delivery_deadline.upper() == "EOD")
 
     return packages_list1, packages_list2, packages_list3
+
+
+def user_cli(package_hash_table, user_time, num_of_packages=40):
+    """This function serves as the user command line interface to check package statuses at a given provided user time.
+
+    Args:
+        package_hash_table (PackageHashTable): The hash table containing the Packages objects.
+        user_time (str): Time provided by the user in (HH:MM) 24-hour format.
+        num_of_packages (int): Total number of packages in the PackageHashTable object.
+
+    Return: None
+    """
+    user_time_to_datetime = datetime(2025, 1, 1, int(user_time[:2]), int(user_time[3:]), 0)
+    print("")
+
+    for i in range(1, num_of_packages+1):
+        original_package = package_hash_table.lookup(i)
+        
+        if original_package is None:
+            continue
+        
+        else:
+            package = deepcopy(original_package)
+
+            if package.delivery_time > user_time_to_datetime:
+                package.delivery_status = DeliveryStatus.NOT_DELIVERED
+                package.delivery_time = None
+            
+            if package.package_id in (6, 25, 28, 32) and user_time_to_datetime < datetime(2025, 1, 1, 9, 5, 0):
+                package.delivery_status = DeliveryStatus.DELAYED
+                package.delivery_time = None
+
+            if package.package_id == 9 and user_time_to_datetime < datetime(2025, 1, 1, 10, 20, 0):
+                package.address = "300 State St"
+                package.special_notes = "Wrong address listed"
+                package.delivery_status = DeliveryStatus.NOT_DELIVERED
+                package.delivery_time = None
+            
+            print(package)

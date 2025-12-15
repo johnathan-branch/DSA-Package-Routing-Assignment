@@ -13,7 +13,7 @@ class Package:
         Weight KILO (float), 
         Special Notes (string)
 
-        A package also contains the fields delivery_status and delivery_time.
+        A package also contains the fields delivery_status, delivery_time, delivery_truck_no.
     """
     
     def __init__(self, package_id, address, city, state, zip, delivery_deadline, weight_kilo, special_notes):
@@ -28,33 +28,36 @@ class Package:
         self.special_notes = special_notes    
         self.delivery_status = DeliveryStatus.AT_HUB
         self.delivery_time = None
+        self.delivery_truck_no = None
 
 
     def __str__(self):
-        return "\n".join([
-            f"{self.package_id=}",
-            f"{self.address=}",
-            f"{self.city=}",
-            f"{self.state=}",
-            f"{self.zip=}",
-            f"{self.delivery_deadline=}",
-            f"{self.weight_kilo=}",
-            f"{self.special_notes=}",
-            f"{self.delivery_status.value=}",
-            f"{self.delivery_time=}"
-        ])+"\n"
+        return ", ".join([
+            f"package_id={self.package_id}",
+            f"address={self.address}",
+            f"city={self.city}",
+            f"state={self.state}",
+            f"zip={self.zip}",
+            f"delivery_deadline={self.delivery_deadline}",
+            f"weight={self.weight_kilo}",
+            f"special_notes={self.special_notes}",
+            f"delivery_status={self.delivery_status.value}",
+            f"delivery_time={self.delivery_time}",
+            f"delivery_truck_no={self.delivery_truck_no}"
+        ])+"\n\n"
     
 
     def __repr__(self):
-        return "\n".join([
-            f"{self.package_id=}",
-            f"{self.address=}",
-            f"{self.city=}",
-            f"{self.state=}",
-            f"{self.zip=}",
-            f"{self.delivery_deadline=}",
-            f"{self.weight_kilo=}",
-            f"{self.special_notes=}",
-            f"{self.delivery_status.value=}",
-            f"{self.delivery_time=}"
-        ])+"\n"
+        return ", ".join([
+            f"package_id={self.package_id}",
+            f"address={self.address}",
+            f"city={self.city}",
+            f"state={self.state}",
+            f"zip={self.zip}",
+            f"delivery_deadline={self.delivery_deadline}",
+            f"weight={self.weight_kilo}",
+            f"special_notes={self.special_notes}",
+            f"delivery_status={self.delivery_status.value}",
+            f"delivery_time={self.delivery_time}",
+            f"delivery_truck_no={self.delivery_truck_no}"
+        ])+"\n\n"

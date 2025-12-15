@@ -53,14 +53,20 @@ class PackageHashTable:
            
 
     def __str__(self):
+        # Flatten all buckets into a single list
+        all_packages = [package for bucket in self.table for package in bucket]
+
+        # Sort by package_id
+        all_packages.sort(key=lambda p: p.package_id)
+            
         return "\n".join([
-            f"{self.size=}",
-            f"{self.table=}"
+            f"hash_table_no_buckets={self.size}",
+            f"hash_table={all_packages}"
         ])
 
 
     def __repr__(self):
         return "\n".join([
-            f"{self.size=}",
-            f"{self.table=}"
+            f"hash_table_no_buckets={self.size}",
+            f"hash_table={self.table}"
         ])
