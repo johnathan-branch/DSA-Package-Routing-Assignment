@@ -32,13 +32,17 @@ def package_nearest_neighbor_algorithm(package_list, dist_data, address_loc_map,
     
     while len(package_list) > 0:
         # Separate urgent packages (non-EOD deadlines)
-        urgent_packages = [p for p in package_list if "EOD" not in p.delivery_deadline.upper()]
+        urgent_packages = [p for p in package_list if "eod" not in p.delivery_deadline.lower()]
+        
         if urgent_packages:
-            candidates = [
-                p for p in urgent_packages
-                if ("Delayed on flight---will not arrive to depot until 9:05 am".lower() not in p.special_notes.lower())
-                or route_time > datetime(2025, 1, 1, 9, 5, 0)
-            ]
+            candidates = [p for p in urgent_packages if "9:00 am" in p.delivery_deadline.lower()]
+            
+            if len(candidates) == 0:
+                candidates = [
+                    p for p in urgent_packages
+                    if ("Delayed on flight---will not arrive to depot until 9:05 am".lower() not in p.special_notes.lower())
+                    or route_time > datetime(2025, 1, 1, 9, 5, 0)
+                ]
         else:
             candidates = package_list
 

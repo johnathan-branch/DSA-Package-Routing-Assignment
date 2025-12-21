@@ -24,15 +24,18 @@ def main():
     distance_data, address_location_map = read_and_parse_distance_file(file_path=DISTANCE_CSV_FILEPATH)
 
     # partition packages into 3 separate list (a.k.a loading the 'trucks')
+    # package_list3 can be over list_max_size to accomodate all of delivery constraints handled by package_list1 and package_list2
     package_list1, package_list2, package_list3 = partition_packages(package_hash_table, list_max_size=16, num_of_packages=40)
-        
-    # Since '3 trucks and 2 drivers' are availible, start 2 trucks close to same time and have last truck start after a driver is 'back'
-    dt1, dd1 = package_nearest_neighbor_algorithm(package_list1, distance_data, address_location_map, package_hash_table)
-    dt2, dd2 = package_nearest_neighbor_algorithm(package_list2, distance_data, address_location_map, package_hash_table,start_time=datetime(2025, 1, 1, 8, 10, 0), delivery_truck_no=2)
-    dt3, dd3 = package_nearest_neighbor_algorithm(package_list3, distance_data, address_location_map, package_hash_table, start_time=dt1, delivery_truck_no=3)
     
-    final_delivery_time = max(dt1, dt2, dt3)
-    final_delivery_distance = round(dd1+dd2+dd3, 2)
+    # Since '3 trucks and 2 drivers' are availible, start 2 trucks close to same time and have last truck start after a driver is 'back'
+    # dt - delivery time, dd - delivery distance
+    dt1, dd1 = package_nearest_neighbor_algorithm(package_list1, distance_data, address_location_map, package_hash_table, start_time=datetime(2025, 1, 1, 9, 5, 0)) # start at 9:05 to accomodate 'delayed packaged'
+    dt2, dd2 = package_nearest_neighbor_algorithm(package_list2, distance_data, address_location_map, package_hash_table, start_time=datetime(2025, 1, 1, 8, 10, 0), delivery_truck_no=2)
+    dt3, dd3 = package_nearest_neighbor_algorithm(package_list3[:16], distance_data, address_location_map, package_hash_table, start_time=dt2, delivery_truck_no=3)
+    dt4, dd4 = package_nearest_neighbor_algorithm(package_list3[16:], distance_data, address_location_map, package_hash_table, start_time=dt3, delivery_truck_no=3)
+    
+    final_delivery_time = max(dt1, dt2, dt3, dt4)
+    final_delivery_distance = round(dd1 + dd2 + dd3 + dd4, 2)
 
     print(f"\nFinal package delivery time = {final_delivery_time}, Total distance travelled (mi) = {final_delivery_distance}\n")
 
@@ -43,6 +46,7 @@ def main():
     else:
         print("Invalid format for time given, please run the script again.")
 
+    # --- DEBUG PRINT STATEMENTS --- commented out for program submission
     # Step 1 debug print statements: (covers requirements A and B)
     #print(package_hash_table)
     #print(package_hash_table.lookup(32))
@@ -52,12 +56,9 @@ def main():
     #print(address_location_map["1060 Dalton Ave S"]) # This hard-coded string should return index 1
     #print(address_location_map)
 
-    # Step 3 debug print statements: (covers part of requirement C)
+    # Step 3 debug print statements {NOTE - These has to be moved up before calling nearest neighbor function}: (covers part of requirement C)
     #print(package_list1, package_list2, package_list3, sep="\n\n")
     #print(len(package_list1), len(package_list2), len(package_list3))
-
-    # Step 4 debug print statements: (covers part of requirement C)
-    #print(f"final_delivery_time={final_delivery_time}, {final_delivery_distance=}")
 
 
 if __name__ == "__main__":
