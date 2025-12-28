@@ -1,5 +1,3 @@
-# J.BRANCH, WGU Student ID No: 012206114
-
 from datetime import datetime
 from pathlib import Path
 
@@ -9,9 +7,9 @@ from utility import *
 
 # project root folder is parent of the current working directory
 ROOT_DIR = Path.cwd().parent 
-#DEBUG_ROOT_DIR = "C:\\WGU-Assignments\C950-DSA_HashTable_Assignment"
-PACKAGE_CSV_FILEPATH  = str(ROOT_DIR) + "\\resources\\WGUPS Package File.csv"
-DISTANCE_CSV_FILEPATH = str(ROOT_DIR) + "\\resources\\WGUPS Distance Table.csv"
+#DEBUG_ROOT_DIR = 
+PACKAGE_CSV_FILEPATH  = str(ROOT_DIR) + "\\resources\\Package File.csv"
+DISTANCE_CSV_FILEPATH = str(ROOT_DIR) + "\\resources\\Distance Table.csv"
  
 
 def main():
