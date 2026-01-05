@@ -3,7 +3,9 @@ from pathlib import Path
 
 from nearest_neighbor import package_nearest_neighbor_algorithm
 from package_hash_table import PackageHashTable
-from utility import *
+from file_io_parsing import *
+from package_partitioning import *
+from user_cli import *
 
 # project root folder is parent of the current working directory
 ROOT_DIR = Path.cwd().parent 
